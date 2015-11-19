@@ -28,7 +28,7 @@ namespace Jitter.Tests.Models
             // Act
 
             // Assert
-            Assert.AreEqual("I am Awesome", a_user.Description);
+            Assert.AreEqual("I am Awesome!", a_user.Description);
             Assert.AreEqual("adam1", a_user.Handle);
             Assert.AreEqual("Adam", a_user.FirstName);
             Assert.AreEqual("Sandler", a_user.LastName);
