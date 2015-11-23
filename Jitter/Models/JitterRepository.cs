@@ -15,14 +15,18 @@ namespace Jitter.Models
             _context = new JitterContext();
         }
 
-        public JitterRepository(JitterContext a_context)
-        {
+        public JitterRepository(JitterContext a_context) // allows to define which context we want to use
+        {  // takes connection string from passed in context
             _context = a_context;
         }
 
         public List<JitterUser> GetAllUsers()
         {
-            return null;
+            // will get data from DbSet JitterUsers
+            // wrap every row in table w/ instance of JitterUser class
+            // (same as "AS" in SQL)
+            var query = from users in _context.JitterUsers select users.Handle;
+            return query.ToList();
         }
     }
 }

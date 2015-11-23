@@ -4,6 +4,7 @@ using Jitter.Models;
 using System.Collections.Generic;
 using Moq;
 using System.Data.Entity;
+using System.Linq;
 
 namespace Jitter.Tests.Models
 {
@@ -36,11 +37,22 @@ namespace Jitter.Tests.Models
             Mock<JitterContext> mock_context = new Mock<JitterContext>();
             Mock<DbSet<JitterUser>> mock_set = new Mock<DbSet<JitterUser>>();
 
-            mock_set.Object.AddRange(expected);
+            mock_set.Object.AddRange(expected); // adds 2 at once, rather than two separate calls
+
+            // this will allow ANY data source to be used by Moq/LINQ
+            var data_source = expected.AsQueryable();
+
+            // Convice LINQ that our Mock DbSet is a (relational) Data store
+            // =~ providing under-the-hood solution
+            // that is useful w/ MANY different types of data stores!!
+            mock_set.As<IQueryable<JitterUser>>().Setup(data => data.Provider).Returns(data_source.Provider);
+            mock_set.As<IQueryable<JitterUser>>().Setup(data => data.Expression).Returns(data_source.Expression);
+            mock_set.As<IQueryable<JitterUser>>().Setup(data => data.ElementType).Returns(data_source.ElementType);
+            mock_set.As<IQueryable<JitterUser>>().Setup(data => data.GetEnumerator()).Returns(data_source.GetEnumerator());
 
             // This is Stubbing the JitterUsers property getter
-            mock_context.Setup(a => a.JitterUsers).Returns(mock_set.Object);
-            JitterRepository repository = new JitterRepository(mock_context.Object);
+            mock_context.Setup(a => a.JitterUsers).Returns(mock_set.Object); // don't go to DB proper, but use Mock instead
+            JitterRepository repository = new JitterRepository(mock_context.Object); // after stub, use mock context
             // Act
             var actual = repository.GetAllUsers();
             // Assert
