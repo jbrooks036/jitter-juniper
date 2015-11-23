@@ -25,7 +25,7 @@ namespace Jitter.Models
             // will get data from DbSet JitterUsers
             // wrap every row in table w/ instance of JitterUser class
             // (same as "AS" in SQL)
-            var query = from users in _context.JitterUsers select users.Handle;
+            var query = from users in _context.JitterUsers select users;
             return query.ToList();
         }
     }
