@@ -20,16 +20,16 @@ namespace Jitter.Tests.Models
             // this will allow ANY data source to be used by Moq/LINQ
             var data_source = data_store.AsQueryable<JitterUser>();
 
-            // Convice LINQ that our Mock DbSet is a (relational) Data store
-            // =~ providing under-the-hood solution that is useful 
+            // Convince LINQ that our Mock DbSet is a (relational) Data store
+            // providing under-the-hood solution that is useful 
             // w/ MANY different types of data stores!!
             mock_set.As<IQueryable<JitterUser>>().Setup(data => data.Provider).Returns(data_source.Provider);
             mock_set.As<IQueryable<JitterUser>>().Setup(data => data.Expression).Returns(data_source.Expression);
             mock_set.As<IQueryable<JitterUser>>().Setup(data => data.ElementType).Returns(data_source.ElementType);
             mock_set.As<IQueryable<JitterUser>>().Setup(data => data.GetEnumerator()).Returns(data_source.GetEnumerator());
 
-            // This is Stubbing the JitterUsers property getter
-            // Don't go to DB proper, but use Mock instead
+            // This is Stubbing the JitterUsers property getter:
+            // "Don't go to DB proper, but use Mock instead"
             mock_context.Setup(a => a.JitterUsers).Returns(mock_set.Object); 
         }
 
@@ -63,6 +63,16 @@ namespace Jitter.Tests.Models
         }
 
         [TestMethod]
+        public void JitterRepositoryEnsureIHaveAContext()
+        {
+            // Arrange
+            // Act
+            var actual = repository.Context;
+            // Assert
+            Assert.IsInstanceOfType(actual, typeof(JitterContext));
+        }
+
+        [TestMethod]
         public void JitterRepositoryEnsureICanGetAllUsers()
         {
             // Arrange
@@ -84,16 +94,6 @@ namespace Jitter.Tests.Models
             // Assert
             Assert.AreEqual("adam1", actual.First().Handle);
             CollectionAssert.AreEqual(expected, actual);
-        }
-
-        [TestMethod]
-        public void JitterRepositoryEnsureIHaveAContext()
-        {
-            // Arrange
-            // Act
-            var actual = repository.Context;
-            // Assert
-            Assert.IsInstanceOfType(actual, typeof(JitterContext));
         }
 
 

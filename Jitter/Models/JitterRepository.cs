@@ -7,7 +7,7 @@ namespace Jitter.Models
 {
     public class JitterRepository
     {
-        private JitterContext _context;
+        private JitterContext _context; // this is the JitterContext that the JitterRepo uses
         public JitterContext Context { get {return _context;}}
 
         public JitterRepository()
