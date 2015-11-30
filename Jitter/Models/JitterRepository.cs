@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Jitter.Models
@@ -62,6 +63,62 @@ namespace Jitter.Models
             List<JitterUser> found_users = query.Where(user => user.Handle.Contains(handle)).ToList();
             found_users.Sort();
             return found_users;
+        }
+
+        public List<JitterUser> SearchByName(string search_term)
+        {
+            // SQL:  select * from JitterUsers As users where users.FirstName like '%search_term%' OR users.LastName like '%search_term%';
+            var query = from user in _context.JitterUsers select user;
+            // much research to figure out how to match strings on search; Sally found Regex...
+            List<JitterUser> found_users = query.Where(user => Regex.IsMatch(user.FirstName, search_term, RegexOptions.IgnoreCase) ||
+                 Regex.IsMatch(user.LastName, search_term, RegexOptions.IgnoreCase)).ToList();
+            found_users.Sort();
+            return found_users;
+        }
+
+        public List<Jot> GetAllJots()
+        {
+            // SQL:  select * from Jots;
+            var query = from jot in _context.Jots select jot;
+            List<Jot> found_jots = query.ToList();
+            found_jots.Sort();  // do this later
+            return found_jots;
+        }
+
+        public bool CreateJot(JitterUser jitter_user1, string content)
+        {
+            // add a new thing to DB
+            // _context talks to DB
+            // DbSet is table for Jots
+            Jot a_jot = new Jot
+            {
+                Content = content,
+                Date = DateTime.Now,
+                Author = jitter_user1
+            };
+            bool is_added = true;
+        
+            _context.SaveChanges();
+            // b/c jot could have somethings empty...
+            try
+            {
+                // hey, DB: add a row
+                // but put this inside try-catch block, b/c "you never know..."(!)
+                Jot added_jot = _context.Jots.Add(a_jot);
+                // why is this null?  Are the Docs inaccurate?
+                /* 
+                if (added_jot == null)
+                {
+                    is_added = false;
+                }
+                */ 
+            }
+            catch (Exception)
+            {
+                is_added = false;
+            }
+            return is_added;
+
         }
     }
 }
