@@ -3,6 +3,11 @@
     Layout = "~/Views/Shared/_JitterLayout.cshtml";
 }
 
+<div ng-controller="TestController">
+    {{test}}
+    <button ng-click="hello()"></button>
+</div>
+
 @foreach (var item in Model)
 {
     <div class="row">
